@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>todo管理移动web工具</title>
+</head>
+<body>
+    <nav>Title</nav>
+    <!-- 各种按钮 -->
+    <button class="add" id="add">add</button>
+    <button class="done" id="done">Done</button>
+    <button class="cancel" id="cancel">Cancel</button>
+    <div class="one-thing" id="one-thing">
+	    <h2>Now!The One Thing is</h2>
+	    <!-- onething 页面 这里的文本需要替换为 all 页面的 正在进行的任务的 文本-->
+	    <div>
+		    <div><img src="images/45_66_03.png"></div>
+		    <div id="onething">
+		    some text some text some text
+		    some text some text some text
+		    some text some text some text
+		    </div>
+	    </div>
+    </div>
+       <!-- all页面 -->
+    <div class="all" id="all">
+    <div class="level-status">
+    	<div class="level">
+    		<span><img src="images/45_66_11.png" id="high-level"></span>
+    		<span><img src="images/45_66_13.png" id="mid-level"></span>
+    		<span><img src="images/45_66_15.png" id="low-level"></span>
+    	</div>
+    	<div class="status">
+    	    <span><img src="images/45_66_20.png" id="doing"></span>
+    		<span><img src="images/45_66_21.png" id="waiting"></span>
+    		<span><img src="images/45_66_22.png" id="completed"></span>
+    	</div>
+    </div>
+    <div id="task-content">
+		<div class="line-wrapper">
+		  <div class="line-scroll-wrapper">
+		    <div class="line-normal-wrapper">
+		      <div class="line-btn-level"><button class="complete">已完成</button><button class="wait">待办</button><button class="doing">进行中</button></div>
+		      <div class="line-normal-left-wrapper">
+		        <div class="line-normal-avatar-wrapper"><img src="images/45_66_03.png" class="line-status-img"></div>
+		        <div class="line-normal-info-wrapper">
+		          <div class="line-normal-msg">some task some task some task some task some task some task</div>
+		        </div>
+		      </div>
+		    </div>
+		    <div class="line-btn-delete"><button class="compile">编辑</button><button class="del">删除</button></div>
+		  </div>
+		</div>
+
+
+		<div class="line-wrapper">
+		  <div class="line-scroll-wrapper">
+		    <div class="line-normal-wrapper">
+		      <div class="line-btn-level"><button class="complete">已完成</button><button class="wait">待办</button><button class="doing">进行中</button></div>
+		      <div class="line-normal-left-wrapper">
+		        <div class="line-normal-avatar-wrapper"><img src="images/45_66_06.png" class="line-status-img"></div>
+		        <div class="line-normal-info-wrapper">
+		          <div class="line-normal-msg">some task some task some task some task some task some task</div>
+		        </div>
+		      </div>
+		    </div>
+		    <div class="line-btn-delete"><button class="compile">编辑</button><button class="del">删除</button></div>
+		  </div>
+		</div>
+
+		<div class="line-wrapper">
+		  <div class="line-scroll-wrapper">
+		    <div class="line-normal-wrapper">
+		      <div class="line-btn-level"><button class="complete">已完成</button><button class="wait">待办</button><button class="doing">进行中</button></div>
+		      <div class="line-normal-left-wrapper">
+		        <div class="line-normal-avatar-wrapper"><img src="images/45_66_08.png" class="line-status-img"></div>
+		        <div class="line-normal-info-wrapper">
+		            <div class="line-normal-msg">some task some task some task some task some task some task</div>
+		        </div>
+		      </div>
+		    </div>
+		    <div class="line-btn-delete"><button class="compile">编辑</button><button class="del">删除</button></div>
+		  </div>
+		</div>
+    </div>
+    </div>
+    <footer>
+    	<span>OneThing</span>
+    	<span>All</span>
+    </footer>
+</body>
+<script src="./dist/index.js"></script>
+</html>
