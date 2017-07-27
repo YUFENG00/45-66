@@ -60,11 +60,153 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.lineSwipe = undefined;
+
+__webpack_require__(5);
+
+var _jquery = __webpack_require__(3);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// 滑动事件 
+var lineSwipe = void 0;
+(0, _jquery2.default)(document).ready(exports.lineSwipe = lineSwipe = function lineSwipe(e) {
+    (0, _jquery2.default)(".line-wrapper").width((0, _jquery2.default)(window).width());
+    // 设定每一行的宽度=屏幕宽度+按钮宽度
+    (0, _jquery2.default)(".line-scroll-wrapper").width((0, _jquery2.default)(".line-wrapper").width() + (0, _jquery2.default)(".line-btn-delete").width());
+
+    console.log((0, _jquery2.default)(".line-scroll-wrapper").width());
+    // 设定常规信息区域宽度=屏幕宽度
+    (0, _jquery2.default)(".line-normal-wrapper").width((0, _jquery2.default)(".line-wrapper").width());
+    // 设定文字部分宽度（为了实现文字过长时在末尾显示...）
+    (0, _jquery2.default)(".line-normal-msg").width((0, _jquery2.default)(".line-normal-wrapper").width() - 100);
+
+    // 获取所有行，对每一行设置监听
+    var lines = (0, _jquery2.default)(".line-normal-wrapper");
+    var len = lines.length;
+    var lastX = void 0,
+        lastXForMobile = void 0;
+
+    // 用于记录被按下的对象
+    var pressedObj = void 0; // 当前滑动的对象
+    var lastLeftObj = void 0; // 上一个左滑的对象
+    var lastRightObj = void 0; //上一个右滑的对象
+
+    // 用于记录按下的点
+    var start = void 0;
+
+    // 网页在移动端运行时的监听
+    for (var i = 0; i < len; ++i) {
+        lines[i].addEventListener('touchstart', function (e) {
+            lastXForMobile = e.changedTouches[0].pageX;
+            pressedObj = this; // 记录被按下的对象 
+
+            // 记录开始按下时的点
+            var touches = event.touches[0];
+            start = {
+                x: touches.pageX, // 横坐标
+                y: touches.pageY // 纵坐标
+            };
+        });
+
+        lines[i].addEventListener('touchmove', function (e) {
+            // 计算划动过程中x和y的变化量
+            var touches = event.touches[0];
+            var delta = {
+                x: touches.pageX - start.x,
+                y: touches.pageY - start.y
+            };
+
+            // 横向位移大于纵向位移，阻止纵向滚动
+            if (Math.abs(delta.x) > Math.abs(delta.y)) {
+                event.preventDefault();
+            }
+        });
+
+        lines[i].addEventListener('touchend', function (e) {
+            if (lastLeftObj && pressedObj != lastLeftObj || lastRightObj && pressedObj != lastRightObj) {
+                // 点击除当前滑动对象之外的任意其他位置
+                (0, _jquery2.default)(lastLeftObj).animate({ marginLeft: "0" }, 500); // 右滑
+                lastLeftObj = null; // 清空上一个左滑的对象
+                (0, _jquery2.default)(lastRightObj).animate({ marginLeft: "0" }, 500);
+                lastRightObj = null; //清空上一个右滑对象
+            }
+            var diffX = e.changedTouches[0].pageX - lastXForMobile;
+            var currMarginLeft = parseInt(window.getComputedStyle(pressedObj, null).marginLeft); //获取当前对象的计算样式
+            console.log(pressedObj.style.marginLeft);
+            console.log(currMarginLeft);
+            console.log(diffX);
+            if (diffX < -150 && currMarginLeft == 0) {
+                (0, _jquery2.default)(pressedObj).animate({ marginLeft: "-264px" }, 500); // 左滑
+                (0, _jquery2.default)(lastRightObj).animate({ marginLeft: "0" }, 500); // 已经右滑状态的对象左滑
+                lastLeftObj && lastLeftObj != pressedObj && (0, _jquery2.default)(lastLeftObj).animate({ marginLeft: "0" }, 500); // 已经左滑状态的对象右滑
+                lastLeftObj = pressedObj; // 记录上一个左滑的对象
+            } else if (diffX < -150 && currMarginLeft == 396) {
+                if (pressedObj == lastRightObj) {
+                    (0, _jquery2.default)(pressedObj).animate({ marginLeft: "0" }, 500);
+                    lastRightObj = null;
+                }
+            } else if (diffX > 150 && currMarginLeft == 264) {
+                if (pressedObj == lastLeftObj) {
+                    (0, _jquery2.default)(pressedObj).animate({ marginLeft: "0" }, 500); // 右滑
+                    lastLeftObj = null; // 清空上一个左滑的对象
+                }
+            } else if (diffX > 150 && currMarginLeft == 0) {
+                (0, _jquery2.default)(pressedObj).animate({ marginLeft: "396px" }, 500); // 右滑
+                (0, _jquery2.default)(lastLeftObj).animate({ marginLeft: "0" }, 500); // 已经左滑状态的对象右滑
+                lastRightObj && lastRightObj != pressedObj && (0, _jquery2.default)(lastRightObj).animate({ marginLeft: "0" }, 500); // 已经右滑状态的对象左滑
+                lastRightObj = pressedObj; // 清空上一个右滑的对象
+            }
+        });
+    }
+
+    //     // 网页在PC浏览器中运行时的监听
+    //     for (var i = 0; i < len; ++i) {
+    //         $(lines[i]).bind('mousedown', function(e){
+    //             lastX = e.clientX;
+    //             pressedObj = this; // 记录被按下的对象
+    //         });
+
+    //         $(lines[i]).bind('mouseup', function(e){
+    //             if (lastLeftObj && pressedObj != lastLeftObj) { // 点击除当前左滑对象之外的任意其他位置
+    //                 $(lastLeftObj).animate({marginLeft:"0"}, 500); // 右滑
+    //                 lastLeftObj = null; // 清空上一个左滑的对象
+    //             }
+    //             var diffX = e.clientX - lastX;
+    //             if (diffX < -150) {
+    //                 $(pressedObj).animate({marginLeft:"-264px"}, 500); // 左滑
+    //                 lastLeftObj && lastLeftObj != pressedObj && 
+    //                     $(lastLeftObj).animate({marginLeft:"0"}, 500); // 已经左滑状态的按钮右滑
+    //                 lastLeftObj = pressedObj; // 记录上一个左滑的对象
+    //             } else if (diffX > 150) {
+    //               if (pressedObj == lastLeftObj) {
+    //                 $(pressedObj).animate({marginLeft:"0"}, 500); // 右滑
+    //                 lastLeftObj = null; // 清空上一个左滑的对象
+    //               }
+    //             }
+    //         });
+    //     }
+});
+// console.log(lineSwipe);
+exports.lineSwipe = lineSwipe;
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -146,7 +288,7 @@ function toComment(sourceMap) {
 }
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -505,7 +647,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10341,179 +10483,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)(module)))
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-__webpack_require__(4);
-__webpack_require__(9);
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(5);
-
-var _jquery = __webpack_require__(2);
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// add 按钮 添加输入框
-var addInput = document.createElement("input");
-addInput.setAttribute("class", "addInput");
-// onething all模块
-var foot = document.getElementsByTagName("footer");
-(0, _jquery2.default)("#all").hide();
-foot[0].addEventListener("click", function (e) {
-  //点击 all 隐藏有关模块
-  if (e.target.innerHTML == "All") {
-    (0, _jquery2.default)("#one-thing").hide();
-    (0, _jquery2.default)("#all").show();
-    (0, _jquery2.default)(".line-wrapper").show();
-    (0, _jquery2.default)(".addInput").remove();
-    (0, _jquery2.default)("#done").hide();
-    (0, _jquery2.default)("#cancel").hide();
-    (0, _jquery2.default)("#add").show();
-  }
-  //点击 onething 隐藏相关模块
-  else if (e.target.innerHTML == "OneThing") {
-      (0, _jquery2.default)("#one-thing").show();
-      (0, _jquery2.default)("#all").hide();
-      (0, _jquery2.default)("#done").hide();
-      (0, _jquery2.default)("#cancel").hide();
-      (0, _jquery2.default)("#add").show();
-    }
-});
-
-//cancel 按钮 回到onething界面
-(0, _jquery2.default)("#cancel").click(function () {
-  (0, _jquery2.default)("#one-thing").show();
-  (0, _jquery2.default)("#all").hide();
-  (0, _jquery2.default)("#done").hide();
-  (0, _jquery2.default)("#cancel").hide();
-  (0, _jquery2.default)("#add").show();
-});
-
-//done 按钮
-// add 模块
-(0, _jquery2.default)("#done").hide();
-(0, _jquery2.default)("#cancel").hide();
-
-// 让克隆得到的节点，每次都赋给不同的变量，不然会覆盖前一次添加的节点
-var newTask = new Array();
-// 添加的节点计数
-var flag = 0;
-// 移除之前的事件
-(0, _jquery2.default)("#add").unbind("click");
-(0, _jquery2.default)("#add").click(function () {
-  (0, _jquery2.default)("#done").show();
-  (0, _jquery2.default)("#cancel").show();
-  (0, _jquery2.default)("#add").hide();
-  (0, _jquery2.default)("#one-thing").hide();
-  (0, _jquery2.default)("#all").show();
-  (0, _jquery2.default)(".line-wrapper").hide();
-  (0, _jquery2.default)("#all").append(addInput);
-
-  flag++;
-  //获取页面的第一个任务节点
-  var addTask = document.getElementsByClassName("line-wrapper")[0];
-  //深度克隆，为了获得节点上绑定的事件
-  newTask[flag] = (0, _jquery2.default)(addTask).clone(true); // 为什么不能用 getElementByClassName获取节点？
-  // newTask[flag] = addTask.cloneNode(true);// 如果这种方式获得的节点没有绑定事件，如何获得被克隆节点上绑定的事件呢？
-  // console.log(newTask[flag]);
-  // newTask[flag].attr("id",newTask[flag].attr("id") + "_" +1);
-  // $("#all").append(newTask[flag]);
-  // 配置新添加节点的状态 优先级 状态
-  (0, _jquery2.default)(".level-status").click(function (e) {
-    console.log(newTask[flag]);
-    // 用JQ克隆会报错:newTask[flag].getElementByClassname 不是函数
-    // JQ对象可以用[index]转换为普通节点
-    var imgNode = newTask[flag][0].getElementsByClassName("line-status-img");
-    // console.log(imgNode);
-    // console.log(e.target.id);
-    switch (e.target.id) {
-      case "high-level":
-        imgNode[0].parentNode.style.background = "#f00";
-        break;
-      case "mid-level":
-        imgNode[0].parentNode.style.background = "#f9f900";
-        break;
-      case "low-level":
-        imgNode[0].parentNode.style.background = "#0f0";
-        break;
-      case "doing":
-        imgNode[0].setAttribute("src", "images/45_66_03.png");
-        break;
-      case "waiting":
-        imgNode[0].setAttribute("src", "images/45_66_08.png");
-        break;
-      case "completed":
-        imgNode[0].setAttribute("src", "images/45_66_06.png");
-        break;
-    }
-    // done按钮 添加节点 并回到all界面
-    (0, _jquery2.default)("#done").click(function () {
-      // 不允许添加空节点
-      if (addInput.value !== null) {
-        var taskContent = newTask[flag][0].getElementsByClassName("line-normal-msg");
-        taskContent[0].innerHTML = addInput.value;
-        console.log(newTask[flag]);
-        (0, _jquery2.default)("#all").append(newTask[flag]);
-        (0, _jquery2.default)(".line-wrapper").show();
-        (0, _jquery2.default)("#done").hide();
-        (0, _jquery2.default)("#cancel").hide();
-        (0, _jquery2.default)("#add").show();
-        (0, _jquery2.default)(".addInput").remove();
-      } else {
-        alert("请输入任务");
-      }
-    });
-  });
-});
-
-// 编辑 删除
-(0, _jquery2.default)("#task-content").click(function (e) {
-  console.log(e.target);
-  var parent = e.target.parentNode.parentNode;
-
-  if (e.target.className == "compile") {
-    (0, _jquery2.default)(".line-wrapper").hide();
-    var complieInput = document.createElement("input");
-    complieInput.setAttribute("class", "compileInput");
-    var taskNode = parent.getElementsByClassName("line-normal-msg");
-    complieInput.value = taskNode[0].innerHTML;
-    (0, _jquery2.default)("#task-content").append(complieInput);
-    // add 事件 替换文本 移除编辑模块
-    // 这里有问题，不是想象中的样子
-    // 移除之前的事件
-    (0, _jquery2.default)("#add").unbind("click");
-    (0, _jquery2.default)("#add").click(function () {
-      taskNode[0].innerHTML = complieInput.value;
-      (0, _jquery2.default)(".complieInput").remove();
-      (0, _jquery2.default)("#all").show();
-    });
-  }
-  // 设置任务的状态
-  else if (e.target.className == "del") {
-      e.target.parentNode.parentNode.parentNode.remove();
-    } else if (e.target.className == "complete") {
-      var imgNode = parent.getElementsByClassName("line-status-img");
-      imgNode[0].setAttribute("src", "images/45_66_06.png");
-    } else if (e.target.className == "wait") {
-      var _imgNode = parent.getElementsByClassName("line-status-img");
-      _imgNode[0].setAttribute("src", "images/45_66_08.png");
-    } else if (e.target.className == "doing") {
-      var _imgNode2 = parent.getElementsByClassName("line-status-img");
-      _imgNode2[0].setAttribute("src", "images/45_66_03.png");
-    }
-});
+__webpack_require__(0);
+__webpack_require__(9);
 
 /***/ }),
 /* 5 */
@@ -10530,14 +10507,14 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
+var update = __webpack_require__(2)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!../../node_modules/css-loader/index.js!../../node_modules/less-loader/dist/cjs.js!./main.less", function() {
-			var newContent = require("!!../../node_modules/css-loader/index.js!../../node_modules/less-loader/dist/cjs.js!./main.less");
+		module.hot.accept("!!../../node_modules/css-loader/index.js!../../node_modules/less-loader/dist/cjs.js!./swipe.less", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!../../node_modules/less-loader/dist/cjs.js!./swipe.less");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -10550,12 +10527,12 @@ if(false) {
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(0)(undefined);
+exports = module.exports = __webpack_require__(1)(undefined);
 // imports
 
 
 // module
-exports.push([module.i, "nav {\n  height: 80px;\n  width: 100%;\n  background: #ccc;\n  font-size: 50px;\n  text-align: center;\n}\n.one-thing {\n  position: relative;\n  width: 100%;\n  font-size: 50px;\n}\n.one-thing img {\n  width: 10%;\n  height: 92px;\n}\nfooter {\n  position: absolute;\n  bottom: 0;\n  display: flex;\n  justify-content: space-around;\n  height: 80px;\n  width: 100%;\n  background: #ccc;\n}\nfooter span {\n  font-size: 50px;\n  text-align: center;\n}\n#onething {\n  position: absolute;\n  left: 10%;\n  top: 28%;\n  width: 85%;\n  border: 1px solid black;\n  margin: 20px;\n}\n.level {\n  display: flex;\n  justify-content: space-around;\n  height: 80px;\n  width: 100%;\n  font-size: 40px;\n  background: #fcf;\n}\n.level img {\n  width: 150px;\n  height: 100%;\n}\n.status {\n  display: flex;\n  justify-content: space-around;\n  height: 80px;\n  width: 100%;\n  font-size: 40px;\n  background: #fcf;\n  background: #ccc;\n}\n.status img {\n  width: 150px;\n  height: 100%;\n}\n.add {\n  position: absolute;\n  right: 20px;\n  top: 15px;\n  float: right;\n  font-size: 50px;\n}\n.done {\n  position: absolute;\n  right: 20px;\n  top: 15px;\n  float: right;\n  font-size: 50px;\n}\n.cancel {\n  position: absolute;\n  left: 20px;\n  top: 15px;\n  float: left;\n  font-size: 50px;\n}\n.addInput {\n  width: 100%;\n  height: 200px;\n  margin-top: 20px;\n  font-size: 50px;\n  text-align: top;\n  word-wrap: break-all;\n}\n.compileInput {\n  width: 100%;\n  height: 200px;\n  margin-top: 20px;\n  font-size: 50px;\n  text-align: top;\n  word-wrap: break-all;\n}\n", ""]);
+exports.push([module.i, ".line-wrapper {\n  position: relative;\n  height: 144px;\n  margin-top: 20px;\n  overflow: hidden;\n  font-size: 28px;\n  border-bottom: 1px solid #aaa;\n}\n.line-scroll-wrapper {\n  white-space: nowrap;\n  height: 144px;\n  clear: both;\n}\n.line-btn-delete {\n  float: left;\n  width: 264px;\n  height: 144px;\n}\n.line-btn-delete button {\n  width: 50%;\n  height: 100%;\n  background: red;\n  border: none;\n  font-size: 24px;\n  font-family: 'Microsoft Yahei';\n  color: #fff;\n}\n.line-btn-level {\n  float: left;\n  width: 396px;\n  height: 144px;\n  margin-left: -396px;\n}\n.line-btn-level button {\n  width: 33%;\n  height: 100%;\n  background: red;\n  border: none;\n  font-size: 24px;\n  font-family: \"Microsoft Yahei\";\n  color: #fff;\n}\n.line-normal-wrapper {\n  display: inline-block;\n  line-height: 100px;\n  float: left;\n  padding-top: 10px;\n  padding-bottom: 10px;\n}\n.line-normal-avatar-wrapper {\n  width: 100px;\n  height: 124px;\n  float: left;\n  margin-left: 12px;\n}\n.line-normal-avatar-wrapper img {\n  width: 92px;\n  height: 92px;\n}\n.line-normal-left-wrapper {\n  float: left;\n  overflow: hidden;\n}\n.line-normal-info-wrapper {\n  float: left;\n  margin-left: 10px;\n}\n.line-normal-msg {\n  position: absolute;\n  width: 400px;\n  height: 144px;\n  color: #000;\n  font-size: 50px;\n  line-height: 28px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  margin-top: 11px;\n}\n", ""]);
 
 // exports
 
@@ -10694,129 +10671,179 @@ module.exports = function (module) {
 
 __webpack_require__(10);
 
-var _jquery = __webpack_require__(2);
+var _jquery = __webpack_require__(3);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
+var _swipe = __webpack_require__(0);
+
+var swipe = _interopRequireWildcard(_swipe);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// 滑动事件 
-(0, _jquery2.default)(document).ready(function (e) {
-    (0, _jquery2.default)(".line-wrapper").width((0, _jquery2.default)(window).width());
-    // 设定每一行的宽度=屏幕宽度+按钮宽度
-    (0, _jquery2.default)(".line-scroll-wrapper").width((0, _jquery2.default)(".line-wrapper").width() + (0, _jquery2.default)(".line-btn-delete").width());
+// 将 onething页面的任务内容 替换为 all 页面的正在进行任务的内容
+var doingTask = (0, _jquery2.default)("#doingTask").clone();
+(0, _jquery2.default)("#onething").append(doingTask);
 
-    console.log((0, _jquery2.default)(".line-scroll-wrapper").width());
-    // 设定常规信息区域宽度=屏幕宽度
-    (0, _jquery2.default)(".line-normal-wrapper").width((0, _jquery2.default)(".line-wrapper").width());
-    // 设定文字部分宽度（为了实现文字过长时在末尾显示...）
-    (0, _jquery2.default)(".line-normal-msg").width((0, _jquery2.default)(".line-normal-wrapper").width() - 100);
-
-    // 获取所有行，对每一行设置监听
-    var lines = (0, _jquery2.default)(".line-normal-wrapper");
-    var len = lines.length;
-    var lastX = void 0,
-        lastXForMobile = void 0;
-
-    // 用于记录被按下的对象
-    var pressedObj = void 0; // 当前滑动的对象
-    var lastLeftObj = void 0; // 上一个左滑的对象
-    var lastRightObj = void 0; //上一个右滑的对象
-
-    // 用于记录按下的点
-    var start = void 0;
-
-    // 网页在移动端运行时的监听
-    for (var i = 0; i < len; ++i) {
-        lines[i].addEventListener('touchstart', function (e) {
-            lastXForMobile = e.changedTouches[0].pageX;
-            pressedObj = this; // 记录被按下的对象 
-
-            // 记录开始按下时的点
-            var touches = event.touches[0];
-            start = {
-                x: touches.pageX, // 横坐标
-                y: touches.pageY // 纵坐标
-            };
-        });
-
-        lines[i].addEventListener('touchmove', function (e) {
-            // 计算划动过程中x和y的变化量
-            var touches = event.touches[0];
-            var delta = {
-                x: touches.pageX - start.x,
-                y: touches.pageY - start.y
-            };
-
-            // 横向位移大于纵向位移，阻止纵向滚动
-            if (Math.abs(delta.x) > Math.abs(delta.y)) {
-                event.preventDefault();
-            }
-        });
-
-        lines[i].addEventListener('touchend', function (e) {
-            if (lastLeftObj && pressedObj != lastLeftObj || lastRightObj && pressedObj != lastRightObj) {
-                // 点击除当前滑动对象之外的任意其他位置
-                (0, _jquery2.default)(lastLeftObj).animate({ marginLeft: "0" }, 500); // 右滑
-                lastLeftObj = null; // 清空上一个左滑的对象
-                (0, _jquery2.default)(lastRightObj).animate({ marginLeft: "0" }, 500);
-                lastRightObj = null; //清空上一个右滑对象
-            }
-            var diffX = e.changedTouches[0].pageX - lastXForMobile;
-            var currMarginLeft = parseInt(window.getComputedStyle(pressedObj, null).marginLeft); //获取当前对象的计算样式
-            console.log(pressedObj.style.marginLeft);
-            console.log(currMarginLeft);
-            console.log(diffX);
-            if (diffX < -150 && currMarginLeft == 0) {
-                (0, _jquery2.default)(pressedObj).animate({ marginLeft: "-264px" }, 500); // 左滑
-                (0, _jquery2.default)(lastRightObj).animate({ marginLeft: "0" }, 500); // 已经右滑状态的对象左滑
-                lastLeftObj && lastLeftObj != pressedObj && (0, _jquery2.default)(lastLeftObj).animate({ marginLeft: "0" }, 500); // 已经左滑状态的对象右滑
-                lastLeftObj = pressedObj; // 记录上一个左滑的对象
-            } else if (diffX < -150 && currMarginLeft == 396) {
-                if (pressedObj == lastRightObj) {
-                    (0, _jquery2.default)(pressedObj).animate({ marginLeft: "0" }, 500);
-                    lastRightObj = null;
-                }
-            } else if (diffX > 150 && currMarginLeft == 264) {
-                if (pressedObj == lastLeftObj) {
-                    (0, _jquery2.default)(pressedObj).animate({ marginLeft: "0" }, 500); // 右滑
-                    lastLeftObj = null; // 清空上一个左滑的对象
-                }
-            } else if (diffX > 150 && currMarginLeft == 0) {
-                (0, _jquery2.default)(pressedObj).animate({ marginLeft: "396px" }, 500); // 右滑
-                (0, _jquery2.default)(lastLeftObj).animate({ marginLeft: "0" }, 500); // 已经左滑状态的对象右滑
-                lastRightObj && lastRightObj != pressedObj && (0, _jquery2.default)(lastRightObj).animate({ marginLeft: "0" }, 500); // 已经右滑状态的对象左滑
-                lastRightObj = pressedObj; // 清空上一个右滑的对象
-            }
-        });
+// add 按钮 添加输入框
+var addInput = document.createElement("input");
+addInput.setAttribute("class", "addInput");
+// onething all模块
+var foot = document.getElementsByTagName("footer");
+(0, _jquery2.default)("#all").hide();
+foot[0].addEventListener("click", function (e) {
+  //点击 all 隐藏有关模块
+  if (e.target.innerHTML == "All") {
+    (0, _jquery2.default)("#one-thing").hide();
+    (0, _jquery2.default)("#all").show();
+    (0, _jquery2.default)(".line-wrapper").show();
+    (0, _jquery2.default)(".addInput").remove();
+    (0, _jquery2.default)("#done").hide();
+    (0, _jquery2.default)("#cancel").hide();
+    (0, _jquery2.default)("#confirm").hide();
+    (0, _jquery2.default)("#add").show();
+  }
+  //点击 onething 隐藏相关模块
+  else if (e.target.innerHTML == "OneThing") {
+      (0, _jquery2.default)("#one-thing").show();
+      (0, _jquery2.default)("#all").hide();
+      (0, _jquery2.default)("#done").hide();
+      (0, _jquery2.default)("#cancel").hide();
+      (0, _jquery2.default)("#confirm").hide();
+      (0, _jquery2.default)("#add").show();
     }
+});
 
-    //     // 网页在PC浏览器中运行时的监听
-    //     for (var i = 0; i < len; ++i) {
-    //         $(lines[i]).bind('mousedown', function(e){
-    //             lastX = e.clientX;
-    //             pressedObj = this; // 记录被按下的对象
-    //         });
+//cancel 按钮 回到onething界面
+(0, _jquery2.default)("#cancel").click(function () {
+  (0, _jquery2.default)("#one-thing").show();
+  (0, _jquery2.default)("#all").hide();
+  (0, _jquery2.default)("#done").hide();
+  (0, _jquery2.default)("#cancel").hide();
+  (0, _jquery2.default)("#confirm").hide();
+  (0, _jquery2.default)("#add").show();
+});
 
-    //         $(lines[i]).bind('mouseup', function(e){
-    //             if (lastLeftObj && pressedObj != lastLeftObj) { // 点击除当前左滑对象之外的任意其他位置
-    //                 $(lastLeftObj).animate({marginLeft:"0"}, 500); // 右滑
-    //                 lastLeftObj = null; // 清空上一个左滑的对象
-    //             }
-    //             var diffX = e.clientX - lastX;
-    //             if (diffX < -150) {
-    //                 $(pressedObj).animate({marginLeft:"-264px"}, 500); // 左滑
-    //                 lastLeftObj && lastLeftObj != pressedObj && 
-    //                     $(lastLeftObj).animate({marginLeft:"0"}, 500); // 已经左滑状态的按钮右滑
-    //                 lastLeftObj = pressedObj; // 记录上一个左滑的对象
-    //             } else if (diffX > 150) {
-    //               if (pressedObj == lastLeftObj) {
-    //                 $(pressedObj).animate({marginLeft:"0"}, 500); // 右滑
-    //                 lastLeftObj = null; // 清空上一个左滑的对象
-    //               }
-    //             }
-    //         });
-    //     }
+//done cancel confirm 按钮
+// add 模块
+(0, _jquery2.default)("#done").hide();
+(0, _jquery2.default)("#cancel").hide();
+(0, _jquery2.default)("#confirm").hide();
+
+// 让克隆得到的节点，每次都赋给不同的变量，不然会覆盖前一次添加的节点
+var newTask = new Array();
+// 添加的节点计数
+var flag = 0;
+
+(0, _jquery2.default)("#add").click(function () {
+  (0, _jquery2.default)("#done").show();
+  (0, _jquery2.default)("#cancel").show();
+  (0, _jquery2.default)("#add").hide();
+  (0, _jquery2.default)("#one-thing").hide();
+  (0, _jquery2.default)("#all").show();
+  (0, _jquery2.default)(".line-wrapper").hide();
+  (0, _jquery2.default)("#all").append(addInput);
+
+  flag++;
+  //获取页面的第一个任务节点
+  var addTask = document.getElementsByClassName("line-wrapper")[0];
+  //深度克隆，为了获得节点上绑定的事件
+  newTask[flag] = (0, _jquery2.default)(addTask).clone(true); // 为什么不能用 getElementByClassName获取节点？
+  // 去掉克隆节点上的 id="doingTask" 便于后判断是否添加到 onething页面
+  newTask[flag][0].setAttribute("id", "");
+  // 配置新添加节点的状态 优先级 状态
+  (0, _jquery2.default)(".level-status").click(function (e) {
+    console.log(newTask[flag]);
+    // 用JQ克隆会报错:newTask[flag].getElementByClassname 不是函数
+    // JQ对象可以用[index]转换为普通节点
+    var imgNode = newTask[flag][0].getElementsByClassName("line-status-img");
+    // console.log(imgNode);
+    // console.log(e.target.id);
+    switch (e.target.id) {
+      case "high-level":
+        imgNode[0].parentNode.style.background = "#f00";
+        break;
+      case "mid-level":
+        imgNode[0].parentNode.style.background = "#f9f900";
+        break;
+      case "low-level":
+        imgNode[0].parentNode.style.background = "#0f0";
+        break;
+      case "doing":
+        imgNode[0].setAttribute("src", "images/45_66_03.png");
+        newTask[flag][0].setAttribute("id", "doingTask");
+        break;
+      case "waiting":
+        imgNode[0].setAttribute("src", "images/45_66_08.png");
+        break;
+      case "completed":
+        imgNode[0].setAttribute("src", "images/45_66_06.png");
+        break;
+    }
+    // done按钮 添加节点 并回到all界面
+    (0, _jquery2.default)("#done").click(function () {
+      // 不允许添加空节点
+      if (addInput.value !== null) {
+        var taskContent = newTask[flag][0].getElementsByClassName("line-normal-msg");
+        taskContent[0].innerHTML = addInput.value;
+        console.log(newTask[flag]);
+        (0, _jquery2.default)("#task-content").append(newTask[flag]);
+        // 正在进行的任务添加到onething页面
+        if (newTask[flag][0].id == "doingTask") {
+          (0, _jquery2.default)("#onething").append((0, _jquery2.default)(newTask[flag]).clone());
+        }
+        // 调用模块
+        swipe.lineSwipe();
+        (0, _jquery2.default)(".line-wrapper").show();
+        (0, _jquery2.default)("#done").hide();
+        (0, _jquery2.default)("#cancel").hide();
+        (0, _jquery2.default)("#add").show();
+        (0, _jquery2.default)(".addInput").remove();
+      } else {
+        alert("请输入任务");
+      }
+    });
+  });
+});
+
+// 编辑 删除
+(0, _jquery2.default)("#task-content").click(function (e) {
+  console.log(e.target);
+  var parent = e.target.parentNode.parentNode;
+
+  if (e.target.className == "compile") {
+    (0, _jquery2.default)(".line-wrapper").hide();
+    (0, _jquery2.default)("#add").hide();
+    (0, _jquery2.default)("#confirm").show();
+    var complieInput = document.createElement("input");
+    complieInput.setAttribute("class", "compileInput");
+    var taskNode = parent.getElementsByClassName("line-normal-msg");
+    complieInput.value = taskNode[0].innerHTML;
+    (0, _jquery2.default)("#task-content").append(complieInput);
+    // add 事件 替换文本 移除编辑模块		
+    (0, _jquery2.default)("#confirm").click(function () {
+      taskNode[0].innerHTML = complieInput.value;
+      (0, _jquery2.default)(".line-wrapper").show();
+      (0, _jquery2.default)("#add").show();
+      (0, _jquery2.default)("#confirm").hide();
+      (0, _jquery2.default)(".compileInput").remove();
+    });
+  }
+  // 设置任务的状态
+  else if (e.target.className == "del") {
+      e.target.parentNode.parentNode.parentNode.remove();
+    } else if (e.target.className == "complete") {
+      var imgNode = parent.getElementsByClassName("line-status-img");
+      imgNode[0].setAttribute("src", "images/45_66_06.png");
+    } else if (e.target.className == "wait") {
+      var _imgNode = parent.getElementsByClassName("line-status-img");
+      _imgNode[0].setAttribute("src", "images/45_66_08.png");
+    } else if (e.target.className == "doing") {
+      var _imgNode2 = parent.getElementsByClassName("line-status-img");
+      _imgNode2[0].setAttribute("src", "images/45_66_03.png");
+    }
 });
 
 /***/ }),
@@ -10834,14 +10861,14 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(1)(content, options);
+var update = __webpack_require__(2)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
 	// When the styles change, update the <style> tags
 	if(!content.locals) {
-		module.hot.accept("!!../../node_modules/css-loader/index.js!../../node_modules/less-loader/dist/cjs.js!./swipe.less", function() {
-			var newContent = require("!!../../node_modules/css-loader/index.js!../../node_modules/less-loader/dist/cjs.js!./swipe.less");
+		module.hot.accept("!!../../node_modules/css-loader/index.js!../../node_modules/less-loader/dist/cjs.js!./main.less", function() {
+			var newContent = require("!!../../node_modules/css-loader/index.js!../../node_modules/less-loader/dist/cjs.js!./main.less");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -10854,12 +10881,12 @@ if(false) {
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(0)(undefined);
+exports = module.exports = __webpack_require__(1)(undefined);
 // imports
 
 
 // module
-exports.push([module.i, ".line-wrapper {\n  position: relative;\n  height: 144px;\n  margin-top: 20px;\n  overflow: hidden;\n  font-size: 28px;\n  border-bottom: 1px solid #aaa;\n}\n.line-scroll-wrapper {\n  white-space: nowrap;\n  height: 144px;\n  clear: both;\n}\n.line-btn-delete {\n  float: left;\n  width: 264px;\n  height: 144px;\n}\n.line-btn-delete button {\n  width: 50%;\n  height: 100%;\n  background: red;\n  border: none;\n  font-size: 24px;\n  font-family: 'Microsoft Yahei';\n  color: #fff;\n}\n.line-btn-level {\n  float: left;\n  width: 396px;\n  height: 144px;\n  margin-left: -396px;\n}\n.line-btn-level button {\n  width: 33%;\n  height: 100%;\n  background: red;\n  border: none;\n  font-size: 24px;\n  font-family: \"Microsoft Yahei\";\n  color: #fff;\n}\n.line-normal-wrapper {\n  display: inline-block;\n  line-height: 100px;\n  float: left;\n  padding-top: 10px;\n  padding-bottom: 10px;\n}\n.line-normal-avatar-wrapper {\n  width: 100px;\n  height: 124px;\n  float: left;\n  margin-left: 12px;\n}\n.line-normal-avatar-wrapper img {\n  width: 92px;\n  height: 92px;\n}\n.line-normal-left-wrapper {\n  float: left;\n  overflow: hidden;\n}\n.line-normal-info-wrapper {\n  float: left;\n  margin-left: 10px;\n}\n.line-normal-msg {\n  position: absolute;\n  width: 400px;\n  height: 144px;\n  color: #000;\n  font-size: 50px;\n  line-height: 28px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  margin-top: 11px;\n}\n", ""]);
+exports.push([module.i, "nav {\n  height: 80px;\n  width: 100%;\n  background: #ccc;\n  font-size: 50px;\n  text-align: center;\n}\n.one-thing {\n  position: relative;\n  width: 100%;\n  font-size: 50px;\n}\nfooter {\n  position: absolute;\n  bottom: 0;\n  display: flex;\n  justify-content: space-around;\n  height: 80px;\n  width: 100%;\n  background: #ccc;\n}\nfooter span {\n  font-size: 50px;\n  text-align: center;\n}\n#onething {\n  width: 100%;\n  margin: 20px;\n}\n.level {\n  display: flex;\n  justify-content: space-around;\n  height: 80px;\n  width: 100%;\n  font-size: 40px;\n  background: #fcf;\n}\n.level img {\n  width: 150px;\n  height: 100%;\n}\n.status {\n  display: flex;\n  justify-content: space-around;\n  height: 80px;\n  width: 100%;\n  font-size: 40px;\n  background: #fcf;\n  background: #ccc;\n}\n.status img {\n  width: 150px;\n  height: 100%;\n}\n.add {\n  position: absolute;\n  right: 20px;\n  top: 15px;\n  float: right;\n  font-size: 50px;\n}\n.done {\n  position: absolute;\n  right: 20px;\n  top: 15px;\n  float: right;\n  font-size: 50px;\n}\n.confirm {\n  position: absolute;\n  right: 20px;\n  top: 15px;\n  float: right;\n  font-size: 50px;\n}\n.cancel {\n  position: absolute;\n  left: 20px;\n  top: 15px;\n  float: left;\n  font-size: 50px;\n}\n.addInput {\n  width: 100%;\n  height: 200px;\n  margin-top: 20px;\n  font-size: 50px;\n  text-align: top;\n  word-wrap: break-all;\n}\n.compileInput {\n  width: 100%;\n  height: 200px;\n  margin-top: 20px;\n  font-size: 50px;\n  text-align: top;\n  word-wrap: break-all;\n}\n", ""]);
 
 // exports
 

@@ -1,7 +1,8 @@
 import '../css/swipe.less';
 import $ from 'jquery';
 // 滑动事件 
-$(document).ready(function(e) {
+let lineSwipe;
+$(document).ready(lineSwipe = function(e) {
     $(".line-wrapper").width($(window).width());
     // 设定每一行的宽度=屏幕宽度+按钮宽度
     $(".line-scroll-wrapper").width($(".line-wrapper").width() + $(".line-btn-delete").width());
@@ -122,3 +123,5 @@ $(document).ready(function(e) {
 //         });
 //     }
 });
+// console.log(lineSwipe);
+export {lineSwipe};

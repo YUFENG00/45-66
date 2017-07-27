@@ -1,2 +1,2 @@
-require('./main.js');
 require("./swipe.js");
+require('./main.js');
